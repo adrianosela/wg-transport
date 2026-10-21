@@ -1,2 +1,8 @@
-# Compiled example binary (named after its directory by `go build`)
+# Compiled example binaries
 /_examples_/webrtc/webrtc
+/_examples_/webrtc/wg-transport-example-webrtc
+/_examples_/tcplan/tcplan
+/_examples_/tcplan/wg-transport-example-tcplan
+
+# LocalAPI unix socket created at runtime by the examples
+/_examples_/*/tailscaled.sock

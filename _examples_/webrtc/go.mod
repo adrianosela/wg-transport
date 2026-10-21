@@ -7,7 +7,7 @@ replace github.com/adrianosela/wg-transport/webrtc => ../../webrtc
 
 require (
 	github.com/adrianosela/wg-transport/webrtc v0.0.0-00010101000000-000000000000
-	tailscale.com v1.105.0-pre.0.20261021030034-3c24529fa3b2
+	tailscale.com v1.105.0-pre.0.20261021040133-ecd50ee2c190
 )
 
 require (

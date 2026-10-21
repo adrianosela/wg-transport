@@ -11,28 +11,42 @@ deps): a path exists only when a program imports that transport's package.
 
 ## Transports
 
-| Package | Import | Status |
+| Module | Import | What it is |
 | --- | --- | --- |
-| [`webrtc`](./webrtc) | `github.com/adrianosela/wg-transport/webrtc` | WebRTC data channel; disco/DERP signaling, no external server. Most useful for browser/Wasm (`GOOS=js`) peers. |
+| [`webrtc`](./webrtc) | `github.com/adrianosela/wg-transport/webrtc` | WebRTC data channel over ICE; disco/DERP signaling, no external server. For peers where at least one side is a browser/Wasm (`GOOS=js`) node with no UDP socket. |
+| [`tcplan`](./tcplan) | `github.com/adrianosela/wg-transport/tcplan` | Direct TCP stream over the LAN; advertises local interface addresses, peer dials them. For native same-LAN peers on OSes with a faster TCP than UDP path (e.g. macOS-to-macOS on 10 GbE). |
 
-<!-- Future transports (e.g. ble) slot in as sibling packages here. -->
+<!-- Future transports (e.g. ble) slot in as sibling modules here. -->
 
 ## Use
 
 Blank-import the transport(s) you want anywhere in your program (each `init`
-does the registration); everything else is ordinary Tailscale/tsnet code:
+does the registration); everything else is ordinary Tailscale/tsnet code. Any
+number can be imported and all are active at once: each gets its own path, and
+magicsock ranks them per-peer alongside direct UDP and DERP, picking the best
+one a given peer can actually use.
 
 ```go
-import _ "github.com/adrianosela/wg-transport/webrtc"
+import (
+	_ "github.com/adrianosela/wg-transport/tcplan"
+	_ "github.com/adrianosela/wg-transport/webrtc"
+)
 ```
 
-See [`_examples_/webrtc/`](./_examples_/webrtc) for a complete `tsnet`
-hello-world HTTP server with the WebRTC transport linked in:
+See [`_examples_/`](./_examples_) for complete `tsnet` hello-world HTTP servers,
+one per transport. Each also exposes the node's LocalAPI on a unix socket (so
+the stock `tailscale` CLI can inspect it) and a loopback `/dial` endpoint to
+generate traffic to a peer on demand — enough to watch a transport path get
+discovered and promoted. Run a node on two machines:
 
 ```sh
-cd _examples_/webrtc
-TS_AUTHKEY=tskey-auth-... go run . -hostname=wg-transport-hello
-# then visit http://wg-transport-hello/ from another node on your tailnet
+cd _examples_/tcplan
+TS_AUTHKEY=tskey-auth-... go run . -hostname=tcplan-a   # machine A
+TS_AUTHKEY=tskey-auth-... go run . -hostname=tcplan-b   # machine B
+
+# from machine A: make it talk to B, then watch which path magicsock picks
+curl 'localhost:8088/dial?peer=tcplan-b'
+tailscale --socket=./tailscaled.sock status             # peer line shows "tcplan <addr>" once promoted
 ```
 
 ## Status

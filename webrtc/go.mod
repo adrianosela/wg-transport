@@ -4,7 +4,7 @@ go 1.27.3
 
 require (
 	github.com/pion/webrtc/v4 v4.2.18
-	tailscale.com v1.105.0-pre.0.20261021030034-3c24529fa3b2
+	tailscale.com v1.105.0-pre.0.20261021040133-ecd50ee2c190
 )
 
 require (
@@ -53,3 +53,5 @@ require (
 	golang.zx2c4.com/wireguard/windows v1.0.1 // indirect
 	gvisor.dev/gvisor v0.0.0-20260915211658-a6f909f08a72 // indirect
 )
+
+replace tailscale.com => ../../../tailscale/tailscale
